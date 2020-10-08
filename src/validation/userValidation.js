@@ -10,11 +10,11 @@ const userSchema = Joi.object({
 	bdate: Joi.date(),
 	followers: Joi.array(),
 	following: Joi.array(),
-	location: Joi.string(),
+	location: Joi.object(),
 	job: Joi.string(),
 	school: Joi.string(),
 	website: Joi.string(),
-	twitter: Joi.string(),
+	twitter: Joi.string().empty(''),
 	bio: Joi.string(),
 	gender: Joi.string(),
 	interested_genders: Joi.array(),
@@ -29,7 +29,7 @@ const userSchema = Joi.object({
 const userValidation = (data) => {
 	const { error } = userSchema.validate(data);
 
-	if (error) console.log(error);
+	if (error) console.log('User validation error', error);
 
 	return !error;
 }

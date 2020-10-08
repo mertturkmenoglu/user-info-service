@@ -31,8 +31,14 @@ const userInfoSchema = new mongoose.Schema({
 	followers: [mongoose.Schema.Types.ObjectId],
 	following: [mongoose.Schema.Types.ObjectId],
 	location: {
-		type: String,
-		required: false
+		city: {
+			type: String,
+			required: false
+		},
+		country: {
+			type: String,
+			required: false
+		}
 	},
 	job: {
 		type: String,
@@ -48,7 +54,8 @@ const userInfoSchema = new mongoose.Schema({
 	},
 	twitter: {
 		type: String,
-		required: false
+		required: false,
+		default: ""
 	},
 	bio: {
 		type: String,

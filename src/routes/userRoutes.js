@@ -33,7 +33,7 @@ router.route('/:id/wish_to_speak').get(getUserWishToSpeak);
 router.route('/').post(createUser);
 router.route('/get_all').post(getManyUsersById);
 router.route('/follow').post(followUser);
-router.route('/unfollow').get(unfollowUser);
+router.route('/unfollow').post(unfollowUser);
 router.route('/:id').delete(deleteUser);
 router.route('/:id').put(updateUser);
 

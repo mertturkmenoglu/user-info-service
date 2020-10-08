@@ -44,33 +44,56 @@ const getUserFollowers = async (req, res) => {
 }
 
 const getUserFollowing = async (req, res) => {
-	const user = await User.findById(req.params.id);
+	try {
+		const user = await User.findById(req.params.id);
 
-	if (!user || !user.following) {
+		if (!user || !user.following) {
+			return res.status(404).json({
+				message: 'User not found',
+				status_code: 404
+			})
+		}
+
+		return res.json({ 'following': user.following })
+	} catch (err) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
-
-	return res.json({ 'following': user.following })
 }
 
 const getUserHobbies = async (req, res) => {
-	const user = await User.findById(req.params.id);
+	try {
+		const user = await User.findById(req.params.id);
 
-	if (!user || !user.hobbies) {
+		if (!user || !user.hobbies) {
+			return res.status(404).json({
+				message: 'User not found',
+				status_code: 404
+			})
+		}
+
+		return res.json({ 'hobbies': user.hobbies })
+	} catch (err) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
-
-	return res.json({ 'hobbies': user.hobbies })
 }
 
 const getUserFeatures = async (req, res) => {
-	const user = await User.findById(req.params.id);
+	let user;
+
+	try {
+		user = await User.findById(req.params.id);
+	} catch (err) {
+		return res.status(404).json({
+			message: 'User not found',
+			status_code: 404
+		})
+	}
 
 	if (!user || !user.features) {
 		return res.status(404).json({
@@ -83,42 +106,63 @@ const getUserFeatures = async (req, res) => {
 }
 
 const getUserInterestedGenders = async (req, res) => {
-	const user = await User.findById(req.params.id);
+	try {
+		const user = await User.findById(req.params.id);
 
-	if (!user || !user.interested_genders) {
+		if (!user || !user.interested_genders) {
+			return res.status(404).json({
+				message: 'User not found',
+				status_code: 404
+			})
+		}
+
+		return res.json({ 'interested_genders': user.interested_genders })
+	} catch (err) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
-
-	return res.json({ 'interested_genders': user.interested_genders })
 }
 
 const getUserLanguages = async (req, res) => {
-	const user = await User.findById(req.params.id);
+	try {
+		const user = await User.findById(req.params.id);
 
-	if (!user || !user.languages) {
+		if (!user || !user.languages) {
+			return res.status(404).json({
+				message: 'User not found',
+				status_code: 404
+			})
+		}
+
+		return res.json({ 'languages': user.languages })
+	} catch (err) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
-
-	return res.json({ 'languages': user.languages })
 }
 
 const getUserWishToSpeak = async (req, res) => {
-	const user = await User.findById(req.params.id);
+	try {
+		const user = await User.findById(req.params.id);
 
-	if (!user || !user.wish_to_speak) {
+		if (!user || !user.wish_to_speak) {
+			return res.status(404).json({
+				message: 'User not found',
+				status_code: 404
+			})
+		}
+
+		return res.json({ 'wish_to_speak': user.wish_to_speak })
+	} catch (err) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
-
-	return res.json({ 'wish_to_speak': user.wish_to_speak })
 }
 
 const createUser = async (req, res) => {
@@ -135,7 +179,6 @@ const createUser = async (req, res) => {
 
 	const isUsernameUsed = await User.findOne({ username })
 
-	console.log(isUsernameUsed)
 	if (isUsernameUsed) {
 		return res.status(400).json({
 			message: 'Username already exists',
@@ -182,6 +225,7 @@ const createUser = async (req, res) => {
 		const saved = await user.save();
 		return res.status(201).json({ user: saved })
 	} catch (err) {
+		console.error(err);
 		return res.status(500).json({
 			message: 'User cannot be added',
 			status_code: 500
@@ -192,13 +236,30 @@ const createUser = async (req, res) => {
 const followUser = async (req, res) => {
 	const { thisId, otherId } = req.body;
 
-	const thisUser = await User.findById(thisId)
-	const otherUser = await User.findById(otherId)
+	let thisUser;
+	let otherUser;
+
+	try {
+		thisUser = await User.findById(thisId)
+		otherUser = await User.findById(otherId)
+	} catch (err) {
+		return res.status(404).json({
+			message: 'User(s) not found',
+			status_code: 404
+		})
+	}
 
 	if (!thisUser || !otherUser) {
 		return res.status(404).json({
 			message: 'User(s) not found',
 			status_code: 404
+		})
+	}
+
+	if (thisUser.following.findIndex(id => id == otherId) != -1) {
+		return res.status(400).json({
+			message: 'Already following',
+			status_code: 400
 		})
 	}
 
@@ -222,9 +283,18 @@ const followUser = async (req, res) => {
 
 const unfollowUser = async (req, res) => {
 	const { thisId, otherId } = req.body;
+	let thisUser
+	let otherUser
 
-	const thisUser = await User.findById(thisId)
-	const otherUser = await User.findById(otherId)
+	try {
+		thisUser = await User.findById(thisId)
+		otherUser = await User.findById(otherId)
+	} catch (err) {
+		return res.status(404).json({
+			message: 'User(s) not found',
+			status_code: 404
+		})
+	}
 
 	if (!thisUser || !otherUser) {
 		return res.status(404).json({
@@ -233,8 +303,8 @@ const unfollowUser = async (req, res) => {
 		})
 	}
 
-	thisUser.following = thisUser.following.filter(id => id !== otherId)
-	otherUser.followers = otherUser.followers.filter(id => id !== thisId)
+	thisUser.following = thisUser.following.filter(id => id != otherId)
+	otherUser.followers = otherUser.followers.filter(id => id != thisId)
 
 	try {
 		const savedThisUser = await thisUser.save()
@@ -252,9 +322,17 @@ const unfollowUser = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {
-	const { id } = req.params.id;
+	const id = req.params.id;
+	let user
 
-	const user = await User.findById(id);
+	try {
+		user = await User.findById(id);
+	} catch (err) {
+		return res.status(404).json({
+			message: 'User not found',
+			status_code: 404
+		})
+	}
 
 	if (!user) {
 		return res.status(404).json({
@@ -275,7 +353,16 @@ const deleteUser = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-	const user = await User.findById(req.user._id)
+	let user
+
+	try {
+		user = await User.findById(req.user._id)
+	} catch (err) {
+		return res.status(404).json({
+			message: 'User not found',
+			status_code: 404
+		})
+	}
 
 	const { username, name, email, isAdmin, hobbies, features, bdate, followers, following, location, job, school, website, twitter, bio, gender, interested_genders, open_to_relationship, weight, height, sexual_orientation, languages, wish_to_speak } = req.body;
 
@@ -401,7 +488,15 @@ const getManyUsersById = async (req, res) => {
 	const users = []
 
 	for (let id of id_list) {
-		const user = await User.findById(id)
+		let user
+		try {
+			user = await User.findById(id)
+		} catch (err) {
+			return res.status(404).json({
+				message: "User not found",
+				status_code: 404
+			})
+		}
 
 		if (!user) {
 			return res.status(404).json({
