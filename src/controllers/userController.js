@@ -26,6 +26,26 @@ const getUserById = async (req, res) => {
 	}
 }
 
+const getUserByUsername = async (req, res) => {
+	try {
+		const user = await User.find({ username: req.params.username })
+
+		if (!user) {
+			return res.status(404).json({
+				message: "User not found",
+				status_code: 404
+			})
+		}
+
+		return res.json({ user })
+	} catch (err) {
+		return res.status(400).json({
+			message: err.message,
+			status_code: 400
+		})
+	}
+}
+
 const getUserFollowers = async (req, res) => {
 	try {
 		const user = await User.findById(req.params.id);
@@ -526,5 +546,6 @@ module.exports = {
 	unfollowUser,
 	deleteUser,
 	updateUser,
-	getManyUsersById
+	getManyUsersById,
+	getUserByUsername
 }

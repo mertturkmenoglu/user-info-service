@@ -15,13 +15,15 @@ const {
 	unfollowUser,
 	deleteUser,
 	updateUser,
-	getManyUsersById
+	getManyUsersById,
+	getUserByUsername
 } = require('../controllers/userController')
 
 
 const router = express.Router();
 
 router.route('/').get(getUsers);
+router.route('/username/:username').get(getUserByUsername)
 router.route('/:id').get(getUserById);
 router.route('/:id/followers').get(getUserFollowers);
 router.route('/:id/following').get(getUserFollowing);
