@@ -502,7 +502,7 @@ const getManyUsersById = async (req, res) => {
 	return res.json({ users })
 }
 
-const getManyUsersByUsername = (req, res) => {
+const getManyUsersByUsername = async (req, res) => {
 	const MAX_CAPACITY = 100
 
 	const { list } = req.body
