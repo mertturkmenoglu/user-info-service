@@ -16,13 +16,15 @@ const {
 	deleteUser,
 	updateUser,
 	getManyUsersById,
-	getUserByUsername
+	getUserByUsername,
+	getUsersByUsernameQuery
 } = require('../controllers/userController')
 
 
 const router = express.Router();
 
 router.route('/').get(getUsers);
+router.route('/q').get(getUsersByUsernameQuery);
 router.route('/username/:username').get(getUserByUsername)
 router.route('/:id').get(getUserById);
 router.route('/:id/followers').get(getUserFollowers);

@@ -531,6 +531,22 @@ const getManyUsersById = async (req, res) => {
 	return res.json({ users })
 }
 
+const getUsersByUsernameQuery = async (req, res) => {
+	try {
+		const username = req.query.searchTerm
+		const result = await User.find({ username: { $regex: '.*' + username + '.*' } }).limit(100)
+
+		return res.status(200).json({
+			users: result
+		})
+	} catch (err) {
+		return res.status(404).json({
+			message: 'User not found',
+			status_code: 404
+		})
+	}
+}
+
 module.exports = {
 	getUsers,
 	getUserById,
@@ -547,5 +563,6 @@ module.exports = {
 	deleteUser,
 	updateUser,
 	getManyUsersById,
-	getUserByUsername
+	getUserByUsername,
+	getUsersByUsernameQuery
 }
