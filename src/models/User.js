@@ -22,14 +22,19 @@ const userInfoSchema = new mongoose.Schema({
 		required: true,
 		default: false
 	},
+	image: {
+		type: String,
+		required: true,
+		default: "https://github.com/afterthebyte.png"
+	},
 	hobbies: [String],
 	features: [String],
 	bdate: {
 		type: Date,
 		required: false
 	},
-	followers: [mongoose.Schema.Types.ObjectId],
-	following: [mongoose.Schema.Types.ObjectId],
+	followers: [String],
+	following: [String],
 	location: {
 		city: {
 			type: String,
@@ -42,15 +47,18 @@ const userInfoSchema = new mongoose.Schema({
 	},
 	job: {
 		type: String,
-		required: false
+		required: false,
+		default: ""
 	},
 	school: {
 		type: String,
-		required: false
+		required: false,
+		default: ""
 	},
 	website: {
 		type: String,
 		required: false,
+		default: ""
 	},
 	twitter: {
 		type: String,
@@ -59,28 +67,13 @@ const userInfoSchema = new mongoose.Schema({
 	},
 	bio: {
 		type: String,
-		required: false
+		required: false,
+		default: ""
 	},
 	gender: {
 		type: String,
-		required: true
-	},
-	interested_genders: [String],
-	open_to_relationship: {
-		type: Boolean,
-		required: false
-	},
-	weight: {
-		type: Number,
-		required: false
-	},
-	height: {
-		type: Number,
-		required: false
-	},
-	sexual_orientation: {
-		type: String,
-		required: false
+		required: true,
+		default: ""
 	},
 	languages: [
 		{

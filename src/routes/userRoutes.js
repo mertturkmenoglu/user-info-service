@@ -7,7 +7,6 @@ const {
 	getUserFollowing,
 	getUserHobbies,
 	getUserFeatures,
-	getUserInterestedGenders,
 	getUserLanguages,
 	getUserWishToSpeak,
 	createUser,
@@ -31,7 +30,6 @@ router.route('/:id/followers').get(getUserFollowers);
 router.route('/:id/following').get(getUserFollowing);
 router.route('/:id/hobbies').get(getUserHobbies);
 router.route('/:id/features').get(getUserFeatures);
-router.route('/:id/interested_genders').get(getUserInterestedGenders);
 router.route('/:id/languages').get(getUserLanguages);
 router.route('/:id/wish_to_speak').get(getUserWishToSpeak);
 router.route('/').post(createUser);

@@ -125,26 +125,6 @@ const getUserFeatures = async (req, res) => {
 	return res.json({ 'features': user.features })
 }
 
-const getUserInterestedGenders = async (req, res) => {
-	try {
-		const user = await User.findById(req.params.id);
-
-		if (!user || !user.interested_genders) {
-			return res.status(404).json({
-				message: 'User not found',
-				status_code: 404
-			})
-		}
-
-		return res.json({ 'interested_genders': user.interested_genders })
-	} catch (err) {
-		return res.status(404).json({
-			message: 'User not found',
-			status_code: 404
-		})
-	}
-}
-
 const getUserLanguages = async (req, res) => {
 	try {
 		const user = await User.findById(req.params.id);
@@ -195,7 +175,7 @@ const createUser = async (req, res) => {
 		})
 	}
 
-	const { username, name, email, isAdmin, hobbies, features, bdate, followers, following, location, job, school, website, twitter, bio, gender, interested_genders, open_to_relationship, weight, height, sexual_orientation, languages, wish_to_speak } = req.body;
+	const { username, name, email, isAdmin, image, hobbies, features, bdate, followers, following, location, job, school, website, twitter, bio, gender, languages, wish_to_speak } = req.body;
 
 	const isUsernameUsed = await User.findOne({ username })
 
@@ -215,11 +195,15 @@ const createUser = async (req, res) => {
 		})
 	}
 
+	const defaultImageUrl = "https://github.com/afterthebyte.png";
+
+
 	const user = new User({
 		username,
 		name,
 		email,
 		isAdmin,
+		image: (image ? image : defaultImageUrl),
 		hobbies,
 		features,
 		bdate,
@@ -232,11 +216,6 @@ const createUser = async (req, res) => {
 		twitter,
 		bio,
 		gender,
-		interested_genders,
-		open_to_relationship,
-		weight,
-		height,
-		sexual_orientation,
 		languages,
 		wish_to_speak
 	});
@@ -254,14 +233,14 @@ const createUser = async (req, res) => {
 }
 
 const followUser = async (req, res) => {
-	const { thisId, otherId } = req.body;
+	const { thisUsername, otherUsername } = req.body;
 
 	let thisUser;
 	let otherUser;
 
 	try {
-		thisUser = await User.findById(thisId)
-		otherUser = await User.findById(otherId)
+		thisUser = await User.findOne({ username: thisUsername })
+		otherUser = await User.findOne({ username: otherUsername })
 	} catch (err) {
 		return res.status(404).json({
 			message: 'User(s) not found',
@@ -276,22 +255,22 @@ const followUser = async (req, res) => {
 		})
 	}
 
-	if (thisUser.following.findIndex(id => id == otherId) != -1) {
+	if (thisUser.following.findIndex(username => username == otherUsername) != -1) {
 		return res.status(400).json({
 			message: 'Already following',
 			status_code: 400
 		})
 	}
 
-	thisUser.following = [...thisUser.following, otherId];
-	otherUser.followers = [...otherUser.followers, thisId];
+	thisUser.following = [...thisUser.following, otherUsername];
+	otherUser.followers = [...otherUser.followers, thisUsername];
 
 	try {
 		const savedThisUser = await thisUser.save()
 		const savedOtherUser = await otherUser.save()
 
 		return res.status(200).json({
-			message: `${thisId} follows ${otherId}`
+			message: `${thisUsername} follows ${otherUsername}`
 		})
 	} catch (err) {
 		return res.status(500).json({
@@ -302,13 +281,13 @@ const followUser = async (req, res) => {
 }
 
 const unfollowUser = async (req, res) => {
-	const { thisId, otherId } = req.body;
+	const { thisUsername, otherUsername } = req.body;
 	let thisUser
 	let otherUser
 
 	try {
-		thisUser = await User.findById(thisId)
-		otherUser = await User.findById(otherId)
+		thisUser = await User.findOne({ username: thisUsername })
+		otherUser = await User.findOne({ username: otherUsername })
 	} catch (err) {
 		return res.status(404).json({
 			message: 'User(s) not found',
@@ -323,15 +302,15 @@ const unfollowUser = async (req, res) => {
 		})
 	}
 
-	thisUser.following = thisUser.following.filter(id => id != otherId)
-	otherUser.followers = otherUser.followers.filter(id => id != thisId)
+	thisUser.following = thisUser.following.filter(username => username != otherUsername)
+	otherUser.followers = otherUser.followers.filter(username => username != thisUsername)
 
 	try {
 		const savedThisUser = await thisUser.save()
 		const savedOtherUser = await otherUser.save()
 
 		return res.status(200).json({
-			message: `${thisId} unfollowed ${otherId}`
+			message: `${thisUsername} unfollowed ${otherUsername}`
 		})
 	} catch (err) {
 		return res.status(500).json({
@@ -384,7 +363,7 @@ const updateUser = async (req, res) => {
 		})
 	}
 
-	const { username, name, email, isAdmin, hobbies, features, bdate, followers, following, location, job, school, website, twitter, bio, gender, interested_genders, open_to_relationship, weight, height, sexual_orientation, languages, wish_to_speak } = req.body;
+	const { username, name, email, isAdmin, image, hobbies, features, bdate, followers, following, location, job, school, website, twitter, bio, gender, languages, wish_to_speak } = req.body;
 
 	if (!user) {
 		const isValid = userValidation(req.body);
@@ -419,6 +398,7 @@ const updateUser = async (req, res) => {
 			name,
 			email,
 			isAdmin,
+			image,
 			hobbies,
 			features,
 			bdate,
@@ -431,11 +411,6 @@ const updateUser = async (req, res) => {
 			twitter,
 			bio,
 			gender,
-			interested_genders,
-			open_to_relationship,
-			weight,
-			height,
-			sexual_orientation,
 			languages,
 			wish_to_speak
 		});
@@ -455,6 +430,7 @@ const updateUser = async (req, res) => {
 	user.name = name || user.name
 	user.email = email || user.email
 	user.isAdmin = isAdmin || user.isAdmin
+	user.image = image || user.image
 	user.hobbies = hobbies || user.hobbies
 	user.features = features || user.features
 	user.bdate = bdate || user.bdate
@@ -467,11 +443,6 @@ const updateUser = async (req, res) => {
 	user.twitter = twitter || user.twitter
 	user.bio = bio || user.bio
 	user.gender = gender || user.gender
-	user.interested_genders = interested_genders || user.interested_genders
-	user.open_to_relationship = open_to_relationship || user.open_to_relationship
-	user.weight = weight || user.weight
-	user.height = height || user.height
-	user.sexual_orientation = sexual_orientation || user.sexual_orientation
 	user.languages = languages || user.languages
 	user.wish_to_speak = wish_to_speak || user.wish_to_speak
 
@@ -554,7 +525,6 @@ module.exports = {
 	getUserFollowing,
 	getUserHobbies,
 	getUserFeatures,
-	getUserInterestedGenders,
 	getUserLanguages,
 	getUserWishToSpeak,
 	createUser,
