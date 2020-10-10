@@ -355,7 +355,7 @@ const updateUser = async (req, res) => {
 	let user
 
 	try {
-		user = await User.findById(req.user._id)
+		user = await User.findById(req.params.id)
 	} catch (err) {
 		return res.status(404).json({
 			message: 'User not found',
