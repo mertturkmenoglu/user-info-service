@@ -502,6 +502,51 @@ const getManyUsersById = async (req, res) => {
 	return res.json({ users })
 }
 
+const getManyUsersByUsername = (req, res) => {
+	const MAX_CAPACITY = 100
+
+	const { list } = req.body
+
+	if (!list || !Array.isArray(list) || list.length <= 0) {
+		return res.status(400).json({
+			message: 'Username(s) not valid',
+			status_code: 400
+		})
+	}
+
+	if (list.length > MAX_CAPACITY) {
+		return res.status(400).json({
+			message: `Max request capacity is ${MAX_CAPACITY}`,
+			status_code: 400
+		})
+	}
+
+	const users = []
+
+	for (let username of list) {
+		let user
+		try {
+			user = await User.findOne({ username })
+		} catch (err) {
+			return res.status(404).json({
+				message: "User not found",
+				status_code: 404
+			})
+		}
+
+		if (!user) {
+			return res.status(404).json({
+				message: "User not found",
+				status_code: 404
+			})
+		}
+
+		users.push(user)
+	}
+
+	return res.json({ users })
+}
+
 const getUsersByUsernameQuery = async (req, res) => {
 	try {
 		const username = req.query.searchTerm
@@ -533,6 +578,7 @@ module.exports = {
 	deleteUser,
 	updateUser,
 	getManyUsersById,
+	getManyUsersByUsername,
 	getUserByUsername,
 	getUsersByUsernameQuery
 }

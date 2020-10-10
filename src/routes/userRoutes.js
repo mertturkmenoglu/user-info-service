@@ -15,6 +15,7 @@ const {
 	deleteUser,
 	updateUser,
 	getManyUsersById,
+	getManyUsersByUsername,
 	getUserByUsername,
 	getUsersByUsernameQuery
 } = require('../controllers/userController')
@@ -34,6 +35,7 @@ router.route('/:id/languages').get(getUserLanguages);
 router.route('/:id/wish_to_speak').get(getUserWishToSpeak);
 router.route('/').post(createUser);
 router.route('/get_all').post(getManyUsersById);
+router.route('/get_all_by_username').post(getManyUsersByUsername);
 router.route('/follow').post(followUser);
 router.route('/unfollow').post(unfollowUser);
 router.route('/:id').delete(deleteUser);
