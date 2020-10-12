@@ -572,9 +572,16 @@ const getSamplesFromUsername = async (req, res) => {
 		const hobbiesResult = await User.where("hobbies").in(thisUser.hobbies).limit(300)
 		const languagesResult = await User.where("languages.language").in(thisUser.wish_to_speak).limit(300)
 
-		const result = [...featuresResult, ...hobbiesResult, ...languagesResult].filter(it => it.username != username)
+		const m = new Map();
+		const result = []
 
-		return res.status(200).json({ matches: result })
+		featuresResult.forEach(f => m.set(f.username, f))
+		hobbiesResult.forEach(h => m.set(h.username, h))
+		languagesResult.forEach(l => m.set(l.username, l))
+
+		m.forEach(e => result.push(e))
+
+		return res.status(200).json({ matches: [...result] })
 	} catch (err) {
 		return res.status(404).json({
 			message: "User not found",
