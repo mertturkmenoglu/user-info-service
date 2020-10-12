@@ -563,6 +563,26 @@ const getUsersByUsernameQuery = async (req, res) => {
 	}
 }
 
+const getSamplesFromUsername = async (req, res) => {
+	try {
+		const username = req.params.username
+		const thisUser = await User.findOne({ username })
+
+		const featuresResult = await User.where("features").in(thisUser.features).limit(400)
+		const hobbiesResult = await User.where("hobbies").in(thisUser.hobbies).limit(300)
+		const languagesResult = await User.where("languages.language").in(thisUser.wish_to_speak).limit(300)
+
+		const result = [...featuresResult, ...hobbiesResult, ...languagesResult].filter(it => it.username != username)
+
+		return res.status(200).json({ matches: result })
+	} catch (err) {
+		return res.status(404).json({
+			message: "User not found",
+			status_code: 404
+		})
+	}
+}
+
 module.exports = {
 	getUsers,
 	getUserById,
@@ -580,5 +600,6 @@ module.exports = {
 	getManyUsersById,
 	getManyUsersByUsername,
 	getUserByUsername,
-	getUsersByUsernameQuery
+	getUsersByUsernameQuery,
+	getSamplesFromUsername
 }

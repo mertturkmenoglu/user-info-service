@@ -17,7 +17,8 @@ const {
 	getManyUsersById,
 	getManyUsersByUsername,
 	getUserByUsername,
-	getUsersByUsernameQuery
+	getUsersByUsernameQuery,
+	getSamplesFromUsername
 } = require('../controllers/userController')
 
 
@@ -40,5 +41,6 @@ router.route('/follow').post(followUser);
 router.route('/unfollow').post(unfollowUser);
 router.route('/:id').delete(deleteUser);
 router.route('/:id').put(updateUser);
+router.route('/samples/:username').get(getSamplesFromUsername)
 
 module.exports = router
