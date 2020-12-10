@@ -24,9 +24,6 @@ const userSchema = Joi.object({
 
 const userValidation = (data) => {
 	const { error } = userSchema.validate(data);
-
-	if (error) console.log('User validation error', error);
-
 	return !error;
 }
 
