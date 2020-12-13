@@ -27,8 +27,8 @@ const router = express.Router();
 
 router.route('/').get((req, res) => getUsers(req, res, User));
 router.route('/q').get(getUsersByUsernameQuery);
-router.route('/username/:username').get(getUserByUsername)
-router.route('/:id').get(getUserById);
+router.route('/username/:username').get((req, res) => getUserByUsername(req, res, User))
+router.route('/:id').get((req, res) => getUserById(req, res, User));
 router.route('/:id/followers').get(getUserFollowers);
 router.route('/:id/following').get(getUserFollowing);
 router.route('/:id/hobbies').get(getUserHobbies);

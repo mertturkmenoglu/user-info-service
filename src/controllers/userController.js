@@ -29,24 +29,27 @@ const getUserById = async (req, res, db) => {
 	})
 }
 
-const getUserByUsername = async (req, res) => {
+const getUserByUsername = async (req, res, db) => {
+	const username = req.params.username
+	let user
+
 	try {
-		const user = await User.find({ username: req.params.username })
-
-		if (!user) {
-			return res.status(404).json({
-				message: "User not found",
-				status_code: 404
-			})
-		}
-
-		return res.json({ user })
-	} catch (err) {
+		user = await db.find({ username })
+	} catch (e) {
 		return res.status(400).json({
-			message: err.message,
+			message: e.message,
 			status_code: 400
 		})
 	}
+
+	if (!user || user.length === 0) {
+		return res.status(404).json({
+			message: "User not found",
+			status_code: 404
+		})
+	}
+
+	return res.json({ user })
 }
 
 const getUserFollowers = async (req, res) => {
