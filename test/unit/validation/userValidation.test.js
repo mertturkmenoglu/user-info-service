@@ -1,7 +1,7 @@
 const should = require('chai').should()
 
 describe('User Validation', () => {
-    const userValidation = require('./userValidation')
+    const userValidation = require('../../../src/validation/userValidation')
     let data
 
     beforeEach(() => {
