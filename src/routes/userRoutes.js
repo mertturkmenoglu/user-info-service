@@ -1,4 +1,5 @@
 const express = require('express')
+const User = require('../models/User')
 
 const {
 	getUsers,
@@ -24,7 +25,7 @@ const {
 
 const router = express.Router();
 
-router.route('/').get(getUsers);
+router.route('/').get((req, res) => getUsers(req, res, User));
 router.route('/q').get(getUsersByUsernameQuery);
 router.route('/username/:username').get(getUserByUsername)
 router.route('/:id').get(getUserById);

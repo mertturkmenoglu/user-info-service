@@ -1,29 +1,32 @@
 const User = require('../models/User')
 const userValidation = require('../validation/userValidation')
 
-const getUsers = async (req, res) => {
-	const users = await User.find({})
+const getUsers = async (req, res, db) => {
+	const users = await db.find({})
 	return res.json({ users })
 }
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, db) => {
+	const id = req.params.id
+	let user
+
 	try {
-		const user = await User.findById(req.params.id)
-
-		if (!user) {
-			return res.status(404).json({
-				message: "User not found",
-				status_code: 404
-			})
-		}
-
-		return res.json({ user })
-	} catch (err) {
+		user = await db.findById(id)
+	} catch (e) {
 		return res.status(400).json({
-			message: err.message,
+			message: e.message,
 			status_code: 400
 		})
 	}
+
+	if (user.length > 0) {
+		return res.json({ user })
+	}
+
+	return res.status(404).json({
+		message: "User not found",
+		status_code: 404
+	})
 }
 
 const getUserByUsername = async (req, res) => {
