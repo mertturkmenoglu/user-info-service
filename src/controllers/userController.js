@@ -52,73 +52,74 @@ const getUserByUsername = async (req, res, db) => {
 	return res.json({ user })
 }
 
-const getUserFollowers = async (req, res) => {
+const getUserFollowers = async (req, res, db) => {
+	let id = req.params.id
+	let user
+
 	try {
-		const user = await User.findById(req.params.id);
-
-		if (!user || !user.followers) {
-			return res.status(404).json({
-				message: 'User not found',
-				status_code: 404
-			})
-		}
-
-		return res.json({ 'followers': user.followers })
+		user = await db.findById(id);
 	} catch (err) {
 		return res.status(400).json({ message: err.message, status_code: 400 })
 	}
-}
 
-const getUserFollowing = async (req, res) => {
-	try {
-		const user = await User.findById(req.params.id);
-
-		if (!user || !user.following) {
-			return res.status(404).json({
-				message: 'User not found',
-				status_code: 404
-			})
-		}
-
-		return res.json({ 'following': user.following })
-	} catch (err) {
+	if (!user || !user.followers) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
+
+	return res.json({ 'followers': user.followers })
 }
 
-const getUserHobbies = async (req, res) => {
+const getUserFollowing = async (req, res, db) => {
+	let user
+	let id = req.params.id
+
 	try {
-		const user = await User.findById(req.params.id);
-
-		if (!user || !user.hobbies) {
-			return res.status(404).json({
-				message: 'User not found',
-				status_code: 404
-			})
-		}
-
-		return res.json({ 'hobbies': user.hobbies })
+		user = await db.findById(id);
 	} catch (err) {
+		return res.status(400).json({ message: err.message, status_code: 400 })
+	}
+
+	if (!user || !user.following) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
+
+	return res.json({ 'following': user.following })
 }
 
-const getUserFeatures = async (req, res) => {
-	let user;
+const getUserHobbies = async (req, res, db) => {
+	let user
+	let id = req.params.id
 
 	try {
-		user = await User.findById(req.params.id);
+		user = await db.findById(id);
 	} catch (err) {
+		return res.status(400).json({ message: err.message, status_code: 400 })
+	}
+
+	if (!user || !user.hobbies) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
+	}
+
+	return res.json({ 'hobbies': user.hobbies })
+}
+
+const getUserFeatures = async (req, res, db) => {
+	let user
+	let id = req.params.id
+
+	try {
+		user = await db.findById(id);
+	} catch (err) {
+		return res.status(400).json({ message: err.message, status_code: 400 })
 	}
 
 	if (!user || !user.features) {
@@ -131,47 +132,47 @@ const getUserFeatures = async (req, res) => {
 	return res.json({ 'features': user.features })
 }
 
-const getUserLanguages = async (req, res) => {
+const getUserLanguages = async (req, res, db) => {
+	let id = req.params.id
+	let user
+
 	try {
-		const user = await User.findById(req.params.id);
-
-		if (!user || !user.languages) {
-			return res.status(404).json({
-				message: 'User not found',
-				status_code: 404
-			})
-		}
-
-		return res.json({ 'languages': user.languages })
+		user = await db.findById(id);
 	} catch (err) {
+		return res.status(400).json({ message: err.message, status_code: 400 })
+	}
+
+	if (!user || !user.languages) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
+
+	return res.json({ 'languages': user.languages })
 }
 
-const getUserWishToSpeak = async (req, res) => {
+const getUserWishToSpeak = async (req, res, db) => {
+	let id = req.params.id
+	let user
+
 	try {
-		const user = await User.findById(req.params.id);
-
-		if (!user || !user.wish_to_speak) {
-			return res.status(404).json({
-				message: 'User not found',
-				status_code: 404
-			})
-		}
-
-		return res.json({ 'wish_to_speak': user.wish_to_speak })
+		user = await db.findById(id);
 	} catch (err) {
+		return res.status(400).json({message: err.message, status_code: 400 })
+	}
+
+	if (!user || !user.wish_to_speak) {
 		return res.status(404).json({
 			message: 'User not found',
 			status_code: 404
 		})
 	}
+
+	return res.json({ 'wish_to_speak': user.wish_to_speak })
 }
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, db) => {
 	const isValid = userValidation(req.body);
 
 	if (!isValid) {
@@ -238,7 +239,7 @@ const createUser = async (req, res) => {
 	}
 }
 
-const followUser = async (req, res) => {
+const followUser = async (req, res, db) => {
 	const { thisUsername, otherUsername } = req.body;
 
 	let thisUser;
@@ -286,7 +287,7 @@ const followUser = async (req, res) => {
 	}
 }
 
-const unfollowUser = async (req, res) => {
+const unfollowUser = async (req, res, db) => {
 	const { thisUsername, otherUsername } = req.body;
 	let thisUser
 	let otherUser
@@ -326,7 +327,7 @@ const unfollowUser = async (req, res) => {
 	}
 }
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, db) => {
 	const id = req.params.id;
 	let user
 
@@ -357,7 +358,7 @@ const deleteUser = async (req, res) => {
 	}
 }
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, db) => {
 	let user
 
 	try {
@@ -463,7 +464,7 @@ const updateUser = async (req, res) => {
 	}
 }
 
-const getManyUsersById = async (req, res) => {
+const getManyUsersById = async (req, res, db) => {
 	const MAX_CAPACITY = 100
 
 	const { id_list } = req.body
@@ -508,7 +509,7 @@ const getManyUsersById = async (req, res) => {
 	return res.json({ users })
 }
 
-const getManyUsersByUsername = async (req, res) => {
+const getManyUsersByUsername = async (req, res, db) => {
 	const MAX_CAPACITY = 100
 
 	const { list } = req.body
@@ -553,7 +554,7 @@ const getManyUsersByUsername = async (req, res) => {
 	return res.json({ users })
 }
 
-const getUsersByUsernameQuery = async (req, res) => {
+const getUsersByUsernameQuery = async (req, res, db) => {
 	try {
 		const username = req.query.searchTerm
 		const result = await User.find({ username: { $regex: '.*' + username + '.*' } }).limit(100)
@@ -569,7 +570,7 @@ const getUsersByUsernameQuery = async (req, res) => {
 	}
 }
 
-const getSamplesFromUsername = async (req, res) => {
+const getSamplesFromUsername = async (req, res, db) => {
 	try {
 		const username = req.params.username
 		const thisUser = await User.findOne({ username })
