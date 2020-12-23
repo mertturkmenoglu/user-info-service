@@ -246,12 +246,12 @@ const followUser = async (req, res, db) => {
 	let otherUser;
 
 	try {
-		thisUser = await User.findOne({ username: thisUsername })
-		otherUser = await User.findOne({ username: otherUsername })
+		thisUser = await db.findOne({ username: thisUsername })
+		otherUser = await db.findOne({ username: otherUsername })
 	} catch (err) {
-		return res.status(404).json({
-			message: 'User(s) not found',
-			status_code: 404
+		return res.status(400).json({
+			message: err.message,
+			status_code: 400
 		})
 	}
 
@@ -262,7 +262,7 @@ const followUser = async (req, res, db) => {
 		})
 	}
 
-	if (thisUser.following.findIndex(username => username == otherUsername) != -1) {
+	if (thisUser.following.findIndex(username => username == otherUsername) !== -1) {
 		return res.status(400).json({
 			message: 'Already following',
 			status_code: 400
@@ -273,18 +273,18 @@ const followUser = async (req, res, db) => {
 	otherUser.followers = [...otherUser.followers, thisUsername];
 
 	try {
-		const savedThisUser = await thisUser.save()
-		const savedOtherUser = await otherUser.save()
-
-		return res.status(200).json({
-			message: `${thisUsername} follows ${otherUsername}`
-		})
+		await thisUser.save()
+		await otherUser.save()
 	} catch (err) {
 		return res.status(500).json({
 			message: 'Follow operation failed',
 			status_code: 500
 		})
 	}
+
+	return res.status(200).json({
+		message: `${thisUsername} follows ${otherUsername}`
+	})
 }
 
 const unfollowUser = async (req, res, db) => {
@@ -293,12 +293,12 @@ const unfollowUser = async (req, res, db) => {
 	let otherUser
 
 	try {
-		thisUser = await User.findOne({ username: thisUsername })
-		otherUser = await User.findOne({ username: otherUsername })
+		thisUser = await db.findOne({ username: thisUsername })
+		otherUser = await db.findOne({ username: otherUsername })
 	} catch (err) {
-		return res.status(404).json({
-			message: 'User(s) not found',
-			status_code: 404
+		return res.status(400).json({
+			message: err.message,
+			status_code: 400
 		})
 	}
 
@@ -313,18 +313,18 @@ const unfollowUser = async (req, res, db) => {
 	otherUser.followers = otherUser.followers.filter(username => username != thisUsername)
 
 	try {
-		const savedThisUser = await thisUser.save()
-		const savedOtherUser = await otherUser.save()
-
-		return res.status(200).json({
-			message: `${thisUsername} unfollowed ${otherUsername}`
-		})
+		await thisUser.save()
+		await otherUser.save()
 	} catch (err) {
 		return res.status(500).json({
 			message: 'Unfollow operation failed',
 			status_code: 500
 		})
 	}
+
+	return res.status(200).json({
+		message: `${thisUsername} unfollowed ${otherUsername}`
+	})
 }
 
 const deleteUser = async (req, res, db) => {
@@ -332,11 +332,11 @@ const deleteUser = async (req, res, db) => {
 	let user
 
 	try {
-		user = await User.findById(id);
+		user = await db.findById(id);
 	} catch (err) {
-		return res.status(404).json({
-			message: 'User not found',
-			status_code: 404
+		return res.status(400).json({
+			message: err.message,
+			status_code: 400
 		})
 	}
 
@@ -349,9 +349,9 @@ const deleteUser = async (req, res, db) => {
 
 	try {
 		const removed = await user.remove()
-		res.status(200).json({ user: removed })
+		return res.status(200).json({ user: removed })
 	} catch (err) {
-		res.status(500).json({
+		return res.status(500).json({
 			message: 'User delete failed',
 			status_code: 500
 		})
@@ -488,11 +488,11 @@ const getManyUsersById = async (req, res, db) => {
 	for (let id of id_list) {
 		let user
 		try {
-			user = await User.findById(id)
+			user = await db.findById(id)
 		} catch (err) {
-			return res.status(404).json({
-				message: "User not found",
-				status_code: 404
+			return res.status(400).json({
+				message: err.message,
+				status_code: 400
 			})
 		}
 
@@ -533,11 +533,11 @@ const getManyUsersByUsername = async (req, res, db) => {
 	for (let username of list) {
 		let user
 		try {
-			user = await User.findOne({ username })
+			user = await db.findOne({ username })
 		} catch (err) {
-			return res.status(404).json({
-				message: "User not found",
-				status_code: 404
+			return res.status(400).json({
+				message: err.message,
+				status_code: 400
 			})
 		}
 

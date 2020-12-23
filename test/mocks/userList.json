@@ -24,7 +24,6 @@
     ],
     "following": [
       "testuser1",
-      "testuser2",
       "testuser3"
     ],
     "job": "Test Job",
@@ -75,7 +74,7 @@
       "testuser2"
     ],
     "following": [
-      "testuser1",
+      "testuser",
       "testuser2",
       "testuser3"
     ],

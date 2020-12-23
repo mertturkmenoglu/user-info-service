@@ -546,56 +546,458 @@ describe('getUserWishToSpeak Unit Tests', () => {
     })
 })
 
-describe('createUser Unit Tests', () => {
-    it('Should pass', async() => {
-
-    })
-})
-
 describe('followUser Unit Tests', () => {
-    it('Should pass', async() => {
+    let req, res, db
+    const dbFailString = 'Wrong type'
 
+    beforeEach(() => {
+        req = {
+            body: {
+                thisUsername: '',
+                otherUsername: ''
+            }
+        }
+
+        res = {
+            status_code: -1,
+            json: (obj) => obj,
+            status: (num) => {
+                this.status_code = num
+                return res
+            }
+        }
+
+        db = {
+            findOne: async (obj) => {
+                if (typeof obj !== 'object' || typeof obj.username !== 'string')
+                    throw {message: dbFailString}
+
+                const userData = [...data].filter(it => it.username === obj.username)[0]
+
+                if (!userData) return undefined
+                return {
+                    ...userData,
+                    save: async () => {}
+                }
+            },
+        }
+    })
+
+    it('Should follow', async() => {
+        req.body = {
+            thisUsername: 'testuser',
+            otherUsername: 'testuser2'
+        }
+
+        const expected = {
+            message: `${req.body.thisUsername} follows ${req.body.otherUsername}`
+        }
+
+        const actual = await userController.followUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail to follow already following', async() => {
+        req.body = {
+            thisUsername: 'testuser2',
+            otherUsername: 'testuser'
+        }
+
+        const expected = {
+            message: 'Already following',
+            status_code: 400
+        }
+
+        const actual = await userController.followUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail to follow wrong type of username', async() => {
+        req.body = {
+            thisUsername: 1234,
+            otherUsername: 5678
+        }
+
+        const expected = {
+            message: dbFailString,
+            status_code: 400
+        }
+
+        const actual = await userController.followUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail to follow invalid username', async() => {
+        req.body = {
+            thisUsername: 'testuser',
+            otherUsername: 'testusernone'
+        }
+
+        const expected = {
+            message: 'User(s) not found',
+            status_code: 404
+        }
+
+        const actual = await userController.followUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
     })
 })
 
 describe('unfollowUser Unit Tests', () => {
-    it('Should pass', async() => {
+    let req, res, db
+    const dbFailString = 'Wrong type'
 
+    beforeEach(() => {
+        req = {
+            body: {
+                thisUsername: '',
+                otherUsername: ''
+            }
+        }
+
+        res = {
+            status_code: -1,
+            json: (obj) => obj,
+            status: (num) => {
+                this.status_code = num
+                return res
+            }
+        }
+
+        db = {
+            findOne: async (obj) => {
+                if (typeof obj !== 'object' || typeof obj.username !== 'string')
+                    throw {message: dbFailString}
+
+                const userData = [...data].filter(it => it.username === obj.username)[0]
+
+                if (!userData) return undefined
+                return {
+                    ...userData,
+                    save: async () => {}
+                }
+            },
+        }
+    })
+
+    it('Should unfollow', async() => {
+        req.body = {
+            thisUsername: 'testuser2',
+            otherUsername: 'testuser'
+        }
+
+        const expected = {
+            message: `${req.body.thisUsername} unfollowed ${req.body.otherUsername}`
+        }
+
+        const actual = await userController.unfollowUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail to follow wrong type of username', async() => {
+        req.body = {
+            thisUsername: 1234,
+            otherUsername: 5678
+        }
+
+        const expected = {
+            message: dbFailString,
+            status_code: 400
+        }
+
+        const actual = await userController.unfollowUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail to follow invalid username', async() => {
+        req.body = {
+            thisUsername: 'testuser',
+            otherUsername: 'testusernone'
+        }
+
+        const expected = {
+            message: 'User(s) not found',
+            status_code: 404
+        }
+
+        const actual = await userController.unfollowUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
     })
 })
 
 describe('deleteUser Unit Tests', () => {
-    it('Should pass', async() => {
+    let req, res, db
+    const dbFailString = 'Wrong type'
 
+    beforeEach(() => {
+        req = {
+            params: { }
+        }
+        res = {
+            status_code: -1,
+            json: (obj) => obj,
+            status: (num) => {
+                this.status_code = num
+                return res
+            }
+        }
+
+        db = {
+            findById: async (id) => {
+                if (typeof id !== 'string')
+                    throw {message: dbFailString}
+                const userData = [...data].filter(it => it.id === id)[0]
+
+                if (!userData)
+                    return undefined
+
+                return {
+                    ...userData,
+                    remove: async() => {
+                        return userData
+                    }
+                }
+            }
+        }
     })
-})
 
-describe('updateUser Unit Tests', () => {
-    it('Should pass', async() => {
+    it('Should delete user', async() => {
+        const id = 'testuserid1'
+        req.params.id = id
 
+        const expected = { user: [...data].filter(it => it.id === id)[0] }
+
+        const actual = await userController.deleteUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail to delete nousername', async() => {
+        req.params.id = 'testuseridnone'
+
+        const expected = {
+            message: "User not found",
+            status_code: 404
+        }
+
+        const actual = await userController.deleteUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail to get wrong type of username', async () => {
+        req.params.username = 1234
+
+        const expected = {
+            message: dbFailString,
+            status_code: 400
+        }
+
+        const actual = await userController.deleteUser(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
     })
 })
 
 describe('getManyUsersById Unit Tests', () => {
-    it('Should pass', async() => {
+    let req, res, db
+    const dbFailString = 'Wrong type'
 
+    beforeEach(() => {
+        req = {
+            body: {
+                id_list: []
+            }
+        }
+        res = {
+            status_code: -1,
+            json: (obj) => obj,
+            status: (num) => {
+                this.status_code = num
+                return res
+            }
+        }
+
+        db = {
+            findById: async (id) => {
+                if (typeof id !== 'string')
+                    throw {message: dbFailString}
+                const userData = [...data].filter(it => it.id === id)[0]
+
+                if (!userData)
+                    return undefined
+
+                return {
+                    ...userData,
+                }
+            }
+        }
+    })
+
+    it('Should get all the users', async() => {
+        req.body = {
+            id_list: [...data].map(it => it.id)
+        }
+
+        const expected = {
+            users: [...data]
+        }
+
+        const actual = await userController.getManyUsersById(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail no id_list', async() => {
+        req.body =  {
+            id_list: undefined
+        }
+
+        const expected = {
+            message: 'User id(s) not valid',
+            status_code: 400
+        }
+
+        const actual = await userController.getManyUsersById(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail id_list length greater than max capacity', async() => {
+        const list = []
+        const MAX_CAPACITY = 100
+        for (let i = 0; i < MAX_CAPACITY + 1; i++)
+            list.push(i)
+
+        req.body = {
+            id_list: list
+        }
+
+        const expected = {
+            message: `Max request capacity is ${MAX_CAPACITY}`,
+            status_code: 400
+        }
+
+        const actual = await userController.getManyUsersById(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail id_list contains not right type id', async() => {
+        req.body = {
+            id_list: ['testuserid1', 1234]
+        }
+
+        const expected = {
+            message: dbFailString,
+            status_code: 400
+        }
+
+        const actual = await userController.getManyUsersById(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail id_list contains not valid id', async() => {
+        req.body = {
+            id_list: ['testuserid1', 'testuseridnone']
+        }
+
+        const expected = {
+            message: "User not found",
+            status_code: 404
+        }
+
+        const actual = await userController.getManyUsersById(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
     })
 })
 
 describe('getManyUsersByUsername Unit Tests', () => {
-    it('Should pass', async() => {
+    let req, res, db
+    const dbFailString = 'Wrong type'
 
+    beforeEach(() => {
+        req = {
+            body: {
+                list: []
+            }
+        }
+        res = {
+            status_code: -1,
+            json: (obj) => obj,
+            status: (num) => {
+                this.status_code = num
+                return res
+            }
+        }
+
+        db = {
+            findOne: async (obj) => {
+                if (typeof obj !== 'object' || typeof obj.username !== 'string')
+                    throw {message: dbFailString}
+                const userData = [...data].filter(it => it.username === obj.username)[0]
+
+                if (!userData)
+                    return undefined
+
+                return {
+                    ...userData,
+                }
+            }
+        }
     })
-})
 
-describe('getUsersByUsernameQuery Unit Tests', () => {
-    it('Should pass', async() => {
+    it('Should get all the users', async() => {
+        req.body = {
+            list: [...data].map(it => it.username)
+        }
 
+        const expected = {
+            users: [...data]
+        }
+
+        const actual = await userController.getManyUsersByUsername(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
     })
-})
 
-describe('getSamplesFromUsername Unit Tests', () => {
-    it('Should pass', async() => {
+    it('Should fail no list', async() => {
+        req.body =  {
+            list: undefined
+        }
 
+        const expected = {
+            message: 'Username(s) not valid',
+            status_code: 400
+        }
+
+        const actual = await userController.getManyUsersByUsername(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail list length greater than max capacity', async() => {
+        const list = []
+        const MAX_CAPACITY = 100
+        for (let i = 0; i < MAX_CAPACITY + 1; i++)
+            list.push(i)
+
+        req.body = {
+            list
+        }
+
+        const expected = {
+            message: `Max request capacity is ${MAX_CAPACITY}`,
+            status_code: 400
+        }
+
+        const actual = await userController.getManyUsersByUsername(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
+    })
+
+    it('Should fail list contains not right type username', async() => {
+        req.body = {
+            list: ['testuser', 1234]
+        }
+
+        const expected = {
+            message: dbFailString,
+            status_code: 400
+        }
+
+        const actual = await userController.getManyUsersByUsername(req, res, db)
+        expect(actual).to.be.deep.equal(expected)
     })
 })
